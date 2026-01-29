@@ -16,14 +16,16 @@ CORS(app)
 chat_sessions = {}
 
 
-def get_or_create_chat_session(session_id: str, user_id: str = None) -> ChatInteraction:
+def get_or_create_chat_session(session_id: str, user_id: str = None, email: str = None) -> ChatInteraction:
     """Get existing chat session or create a new one."""
     if session_id not in chat_sessions:
+        resolved_user_id = user_id or f"user-{session_id}"
+        resolved_email = email or f"{resolved_user_id}@example.com"
         # Create user context
-        user_context = Context.builder(user_id or f"user-{session_id}") \
+        user_context = Context.builder(resolved_user_id) \
             .set("firstName", "User") \
             .set("lastName", "Demo") \
-            .set("email", f"user-{session_id}@example.com") \
+            .set("email", resolved_email) \
             .build()
         
         chat = ChatInteraction(user_context, AI_CONFIG_KEY, JUDGE_CONFIG_KEY)
@@ -49,12 +51,13 @@ def chat():
         message = data.get('message')
         session_id = data.get('session_id', 'default')
         user_id = data.get('user_id')
+        user_email = data.get('email')
         
         if not message:
             return jsonify({'error': 'Message is required'}), 400
         
         # Get or create chat session
-        chat = get_or_create_chat_session(session_id, user_id)
+        chat = get_or_create_chat_session(session_id, user_id, user_email)
         
         # Check if judge is available first
         judge_available = chat.is_judge_available()
@@ -125,9 +128,10 @@ def get_model():
     try:
         session_id = request.args.get('session_id', 'default')
         user_id = request.args.get('user_id')
+        user_email = request.args.get('email')
         
         # Get or create chat session (this will initialize it)
-        chat = get_or_create_chat_session(session_id, user_id)
+        chat = get_or_create_chat_session(session_id, user_id, user_email)
         
         return jsonify({
             'model': chat.get_model_info(),

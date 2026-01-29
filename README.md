@@ -59,6 +59,7 @@ PORT=5000
    - **Chat AI Config**: Create a new AI Config with key `chat-assistant-config` (or update the key in `.env`)
      - Configure the model (e.g., `amazon.nova-pro-v1:0` for Amazon Nova Pro)
      - Set up system messages/prompts as needed
+     - For a simple setup, keep a single variation and set targeting to serve all contexts
    
    - **Judge AI Config** (Optional): Create a judge AI Config with key `ld-ai-judge-accuracy` (or update the key in `.env`)
      - Configure a judge model (typically a different model than the chat model)
@@ -101,7 +102,7 @@ Send a chat message and receive an AI response.
   "message": "Hello!",
   "session_id": "optional-session-id",
   "user_id": "optional-user-id",
-  "use_judge": false
+  "email": "optional-email"
 }
 ```
 
@@ -114,7 +115,7 @@ Send a chat message and receive an AI response.
 }
 ```
 
-**Response (with judge, when `use_judge: true`):**
+**Response (with judge, when a judge AI Config is enabled):**
 ```json
 {
   "response": "Hello! How can I help you?",
@@ -152,6 +153,16 @@ Reset conversation history for a session.
 
 ### GET `/api/health`
 Health check endpoint.
+
+## Targeting Notes
+
+The LaunchDarkly context includes:
+
+- `key` (from `user_id`, or `user-<session_id>` if not provided)
+- `email` (from request, or a default email if not provided)
+
+For initial testing, use a single variation and serve all contexts. If you
+later want multiple variations, target by `key` or `email`.
 
 ## Project Structure
 

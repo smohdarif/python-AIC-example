@@ -132,6 +132,28 @@
             opacity: 0.7;
         }
 
+        .user-info {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .user-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .user-input:focus {
+            border-color: #667eea;
+        }
+
         .chat-input-container {
             padding: 20px;
             background: white;
@@ -236,6 +258,23 @@
                 <p>👋 Start a conversation!</p>
             </div>
         </div>
+
+        <div class="user-info">
+            <input
+                type="text"
+                class="user-input"
+                id="userIdInput"
+                placeholder="User ID (optional)"
+                autocomplete="off"
+            />
+            <input
+                type="email"
+                class="user-input"
+                id="userEmailInput"
+                placeholder="Email (optional)"
+                autocomplete="off"
+            />
+        </div>
         
         <div class="chat-input-container">
             <input 
@@ -260,11 +299,41 @@
         const sendButton = document.getElementById('sendButton');
         const resetButton = document.getElementById('resetButton');
         const modelInfo = document.getElementById('modelInfo');
+        const userIdInput = document.getElementById('userIdInput');
+        const userEmailInput = document.getElementById('userEmailInput');
+
+        userIdInput.value = localStorage.getItem('userId') || '';
+        userEmailInput.value = localStorage.getItem('userEmail') || '';
+
+        function getUserContext() {
+            const userId = userIdInput.value.trim();
+            const email = userEmailInput.value.trim();
+            return {
+                user_id: userId || null,
+                email: email || null,
+            };
+        }
+
+        function buildQueryParams() {
+            const params = new URLSearchParams({ session_id: sessionId });
+            const { user_id, email } = getUserContext();
+            if (user_id) params.set('user_id', user_id);
+            if (email) params.set('email', email);
+            return params.toString();
+        }
+
+        userIdInput.addEventListener('input', () => {
+            localStorage.setItem('userId', userIdInput.value);
+        });
+
+        userEmailInput.addEventListener('input', () => {
+            localStorage.setItem('userEmail', userEmailInput.value);
+        });
 
         // Load model info from LaunchDarkly
         async function loadModelInfo() {
             try {
-                const response = await fetch(`${API_BASE}/api/model?session_id=${sessionId}`);
+                const response = await fetch(`${API_BASE}/api/model?${buildQueryParams()}`);
                 const data = await response.json();
                 
                 if (data.model) {
@@ -279,7 +348,7 @@
         // Load conversation history on page load
         async function loadHistory() {
             try {
-                const response = await fetch(`${API_BASE}/api/history?session_id=${sessionId}`);
+                const response = await fetch(`${API_BASE}/api/history?${buildQueryParams()}`);
                 const data = await response.json();
                 
                 // Update model info if available
@@ -360,15 +429,24 @@
             setLoading(true);
 
             try {
+                const payload = {
+                    message: message,
+                    session_id: sessionId
+                };
+                const { user_id, email } = getUserContext();
+                if (user_id) {
+                    payload.user_id = user_id;
+                }
+                if (email) {
+                    payload.email = email;
+                }
+
                 const response = await fetch(`${API_BASE}/api/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        message: message,
-                        session_id: sessionId
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
