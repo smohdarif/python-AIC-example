@@ -16,7 +16,7 @@ import boto3
 import ldclient
 from ldclient import Context
 from ldclient.config import Config
-from ldai.client import LDAIClient, AIConfig
+from ldai.client import LDAIClient, AICompletionConfigDefault
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -62,12 +62,13 @@ class ChatInteraction:
     def initialize(self) -> bool:
         """Initialize the AI config from LaunchDarkly."""
         try:
-            fallback_value = AIConfig(enabled=False)
-            self.config, self.tracker = aiclient.config(
+            fallback_value = AICompletionConfigDefault(enabled=False)
+            self.config = aiclient.config(
                 self.ai_config_key,
                 self.user_context,
                 fallback_value
             )
+            self.tracker = getattr(self.config, "tracker", None)
             
             if not self.config.enabled:
                 print("AI Config is disabled for this context.")
@@ -94,12 +95,13 @@ class ChatInteraction:
     def _initialize_judge(self):
         """Initialize the judge AI Config from LaunchDarkly."""
         try:
-            fallback_value = AIConfig(enabled=False)
-            self.judge_config, self.judge_tracker = aiclient.config(
+            fallback_value = AICompletionConfigDefault(enabled=False)
+            self.judge_config = aiclient.config(
                 self.judge_config_key,
                 self.user_context,
                 fallback_value
             )
+            self.judge_tracker = getattr(self.judge_config, "tracker", None)
             
             if not self.judge_config.enabled:
                 print(f"Judge config '{self.judge_config_key}' is disabled or not found.")
