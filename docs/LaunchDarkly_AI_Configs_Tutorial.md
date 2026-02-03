@@ -47,6 +47,22 @@
 - References an AI Model Config
 - Contains prompts and settings
 
+### Python Client Architecture:
+
+This tutorial uses **3 clients** that work together:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  1. LD Client (ldclient)     →  Connects to LaunchDarkly   │
+│         ↓                                                   │
+│  2. AI Client (LDAIClient)   →  Fetches AI Configs         │
+│         ↓                                                   │
+│  3. Bedrock Client (boto3)   →  Calls AWS AI models        │
+└────────────────────────────────────────────────────────────┘
+```
+
+> **See Also:** [Clients & Context Flow](./clients-and-context-flow.md) for detailed diagrams
+
 ---
 
 ## Use Case 0: Environment Setup
@@ -74,8 +90,10 @@ AWS_SECRET_ACCESS_KEY=your_secret_key
 
 **For Python:**
 ```bash
-pip install launchdarkly-server-sdk boto3 python-dotenv
+pip install launchdarkly-server-sdk launchdarkly-server-sdk-ai boto3 python-dotenv flask flask-cors
 ```
+
+> **Note:** You need BOTH `launchdarkly-server-sdk` (core SDK) AND `launchdarkly-server-sdk-ai` (AI extension)
 
 **For Node.js:**
 ```bash
@@ -154,37 +172,63 @@ for model in response['modelSummaries']:
 **Python:**
 ```python
 import os
-from launchdarkly_server_sdk import Context, LDClient
-from launchdarkly_server_sdk.integrations import AIConfig
+import boto3
+import ldclient
+from ldclient import Context
+from ldclient.config import Config
+from ldai.client import LDAIClient, AICompletionConfigDefault
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize LaunchDarkly client
-client = LDClient(os.getenv('LAUNCHDARKLY_SDK_KEY'))
+# Step 1: Initialize LaunchDarkly client
+ldclient.set_config(Config(os.getenv('LAUNCHDARKLY_SDK_KEY')))
+ld_client = ldclient.get()
 
-# Create a context (use unique ID per request for experiments)
-context = Context.builder("user-123").name("Test User").build()
+# Step 2: Create AI Client (wraps LD client)
+aiclient = LDAIClient(ld_client)
 
-# Get AI Config
-config_key = "simple-question-answering"
-ai_config = client.get_ai_config(config_key, context)
+# Step 3: Create a context (identifies WHO is making the request)
+context = Context.builder("user-123") \
+    .set("email", "user@example.com") \
+    .build()
 
-# Prepare variables for the prompt
-variables = {
-    "user_question": "What is the capital of France?"
-}
+# Step 4: Fetch AI Config from LaunchDarkly
+config_key = "chat-assistant-config"
+fallback = AICompletionConfigDefault(enabled=False)
+config = aiclient.config(config_key, context, fallback)
 
-# Get completion
-try:
-    response = ai_config.execute(variables)
-    print("AI Response:")
-    print(response['content'])
-except Exception as e:
-    print(f"Error: {e}")
+if not config.enabled:
+    print("AI Config is disabled")
+    exit(1)
 
-# Close client
-client.close()
+# Step 5: Build messages from config
+system_messages = [
+    {"text": msg.content}
+    for msg in config.messages
+    if msg.role == "system"
+]
+conversation = [
+    {"role": "user", "content": [{"text": "What is the capital of France?"}]}
+]
+
+# Step 6: Call AWS Bedrock
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+response = bedrock.converse(
+    modelId=config.model.name,
+    system=system_messages,
+    messages=conversation
+)
+
+# Step 7: Extract and print response
+output = response['output']['message']['content'][0]['text']
+print("AI Response:")
+print(output)
+
+# Track metrics (optional)
+tracker = getattr(config, 'tracker', None)
+if tracker:
+    tracker.track_tokens(response['usage']['inputTokens'] + response['usage']['outputTokens'])
 ```
 
 **Expected Output:**
@@ -261,14 +305,24 @@ The capital of France is Paris.
 **Python:**
 ```python
 import os
-from launchdarkly_server_sdk import Context, LDClient
+import boto3
+import ldclient
+from ldclient import Context
+from ldclient.config import Config
+from ldai.client import LDAIClient, AICompletionConfigDefault
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Initialize clients once at module level
+ldclient.set_config(Config(os.getenv('LAUNCHDARKLY_SDK_KEY')))
+ld_client = ldclient.get()
+aiclient = LDAIClient(ld_client)
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+
 class QueryRouter:
-    def __init__(self, sdk_key):
-        self.client = LDClient(sdk_key)
+    def __init__(self):
+        pass  # Clients initialized at module level
 
     def is_complex_query(self, question):
         """Simple heuristic to determine query complexity"""
@@ -298,18 +352,29 @@ class QueryRouter:
             config_key = "fast-query-handler"
             print(f"⚡ Routing to FAST model (simple query)")
 
-        # Get AI Config and execute
-        ai_config = self.client.get_ai_config(config_key, context)
-        response = ai_config.execute({"question": question})
+        # Get AI Config from LaunchDarkly
+        fallback = AICompletionConfigDefault(enabled=False)
+        config = aiclient.config(config_key, context, fallback)
 
-        return response['content']
+        if not config.enabled:
+            return "AI Config is disabled"
 
-    def close(self):
-        self.client.close()
+        # Build messages
+        system_msgs = [{"text": msg.content} for msg in config.messages if msg.role == "system"]
+        messages = [{"role": "user", "content": [{"text": question}]}]
+
+        # Call Bedrock
+        response = bedrock.converse(
+            modelId=config.model.name,
+            system=system_msgs,
+            messages=messages
+        )
+
+        return response['output']['message']['content'][0]['text']
 
 # Test the router
 if __name__ == "__main__":
-    router = QueryRouter(os.getenv('LAUNCHDARKLY_SDK_KEY'))
+    router = QueryRouter()
 
     # Test simple query
     simple_q = "What is 2+2?"
@@ -364,14 +429,23 @@ import os
 import time
 import uuid
 from datetime import datetime
-from launchdarkly_server_sdk import Context, LDClient
+import boto3
+import ldclient
+from ldclient import Context
+from ldclient.config import Config
+from ldai.client import LDAIClient, AICompletionConfigDefault
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Initialize clients once
+ldclient.set_config(Config(os.getenv('LAUNCHDARKLY_SDK_KEY')))
+ld_client = ldclient.get()
+aiclient = LDAIClient(ld_client)
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+
 class MetricsTracker:
-    def __init__(self, sdk_key):
-        self.client = LDClient(sdk_key)
+    def __init__(self):
         self.metrics = []
 
     def track_completion(self, config_key, question, user_id=None):
@@ -379,54 +453,58 @@ class MetricsTracker:
         # Generate unique request ID for proper randomization
         request_id = str(uuid.uuid4())
 
-        # Create context with request kind
-        context = Context.builder(request_id).kind("request")
-        if user_id:
-            context = context.set("user_id", user_id)
-        context = context.build()
+        # Create context
+        resolved_user_id = user_id or request_id
+        context = Context.builder(resolved_user_id).build()
 
         # Track start time
         start_time = time.time()
-        ttft = None  # Time to first token
 
         try:
-            # Get AI Config
-            ai_config = self.client.get_ai_config(config_key, context)
+            # Get AI Config from LaunchDarkly
+            fallback = AICompletionConfigDefault(enabled=False)
+            config = aiclient.config(config_key, context, fallback)
 
-            # Execute
-            response = ai_config.execute({"question": question})
+            if not config.enabled:
+                raise Exception("AI Config is disabled")
+
+            # Build messages
+            system_msgs = [{"text": msg.content} for msg in config.messages if msg.role == "system"]
+            messages = [{"role": "user", "content": [{"text": question}]}]
+
+            # Call Bedrock
+            response = bedrock.converse(
+                modelId=config.model.name,
+                system=system_msgs,
+                messages=messages
+            )
 
             # Calculate duration
             end_time = time.time()
             duration = end_time - start_time
 
             # Extract metrics from response
+            usage = response.get('usage', {})
             metrics = {
                 "request_id": request_id,
                 "config_key": config_key,
                 "timestamp": datetime.utcnow().isoformat(),
                 "question": question,
-                "answer": response['content'],
-                "input_tokens": response.get('usage', {}).get('prompt_tokens', 0),
-                "output_tokens": response.get('usage', {}).get('completion_tokens', 0),
-                "total_tokens": response.get('usage', {}).get('total_tokens', 0),
+                "answer": response['output']['message']['content'][0]['text'],
+                "input_tokens": usage.get('inputTokens', 0),
+                "output_tokens": usage.get('outputTokens', 0),
+                "total_tokens": usage.get('inputTokens', 0) + usage.get('outputTokens', 0),
                 "duration_ms": duration * 1000,
-                "model": response.get('model', 'unknown'),
+                "model": config.model.name,
                 "success": True,
                 "error": None
             }
 
-            # LaunchDarkly automatically tracks these metrics
-            self.client.track(
-                "ai-generation",
-                context,
-                data={
-                    "duration": metrics["duration_ms"],
-                    "input_tokens": metrics["input_tokens"],
-                    "output_tokens": metrics["output_tokens"]
-                },
-                metric_value=metrics["duration_ms"]  # For time-based metrics
-            )
+            # Track metrics via LaunchDarkly tracker
+            tracker = getattr(config, 'tracker', None)
+            if tracker:
+                tracker.track_duration(duration)
+                tracker.track_tokens(metrics["total_tokens"])
 
         except Exception as e:
             end_time = time.time()
@@ -446,9 +524,6 @@ class MetricsTracker:
                 "success": False,
                 "error": str(e)
             }
-
-            # Track error
-            self.client.track("ai-generation-error", context, data={"error": str(e)})
 
         self.metrics.append(metrics)
         return metrics
@@ -492,12 +567,9 @@ Performance:
 """
         return summary
 
-    def close(self):
-        self.client.close()
-
 # Test metrics tracking
 if __name__ == "__main__":
-    tracker = MetricsTracker(os.getenv('LAUNCHDARKLY_SDK_KEY'))
+    tracker = MetricsTracker()
 
     # Run multiple queries
     questions = [
@@ -522,8 +594,6 @@ if __name__ == "__main__":
 
     # Print summary
     print(tracker.get_summary())
-
-    tracker.close()
 ```
 
 ### Step 2: View Metrics in LaunchDarkly Dashboard
@@ -588,46 +658,66 @@ if __name__ == "__main__":
 import os
 import time
 import uuid
-from launchdarkly_server_sdk import Context, LDClient
+import boto3
+import ldclient
+from ldclient import Context
+from ldclient.config import Config
+from ldai.client import LDAIClient, AICompletionConfigDefault
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Initialize clients once
+ldclient.set_config(Config(os.getenv('LAUNCHDARKLY_SDK_KEY')))
+ld_client = ldclient.get()
+aiclient = LDAIClient(ld_client)
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+
 class ExperimentRunner:
-    def __init__(self, sdk_key):
-        self.client = LDClient(sdk_key)
+    def __init__(self):
         self.results = {'sonnet': [], 'haiku': []}
 
     def run_experiment_query(self, question):
         """Execute query and track TTFT"""
-        # ⚠️ CRITICAL: Use unique request ID per request
+        # ⚠️ CRITICAL: Use unique request ID per request for proper experiment randomization
         request_id = str(uuid.uuid4())
 
-        # Create context with request kind
-        context = Context.builder(request_id).kind("request").build()
+        # Create context
+        context = Context.builder(request_id).build()
 
-        # Get AI Config
-        ai_config = self.client.get_ai_config("experiment-query-handler", context)
+        # Get AI Config from LaunchDarkly
+        fallback = AICompletionConfigDefault(enabled=False)
+        config = aiclient.config("experiment-query-handler", context, fallback)
+
+        if not config.enabled:
+            print("AI Config is disabled")
+            return None
 
         # Track time to first token (approximate with start time)
         start_time = time.time()
 
         try:
-            response = ai_config.execute({"question": question})
+            # Build messages
+            system_msgs = [{"text": msg.content} for msg in config.messages if msg.role == "system"]
+            messages = [{"role": "user", "content": [{"text": question}]}]
 
-            # Calculate TTFT (time to first token)
-            # In real implementation, you'd track actual first token time
-            ttft = (time.time() - start_time) * 1000  # Convert to ms
-
-            # Track metric for experiment
-            self.client.track(
-                "ttft-avg",
-                context,
-                metric_value=ttft
+            # Call Bedrock
+            response = bedrock.converse(
+                modelId=config.model.name,
+                system=system_msgs,
+                messages=messages
             )
 
+            # Calculate TTFT (time to first token)
+            ttft = (time.time() - start_time) * 1000  # Convert to ms
+
+            # Track metric via tracker
+            tracker = getattr(config, 'tracker', None)
+            if tracker:
+                tracker.track_duration(ttft / 1000)
+
             # Store result
-            model_used = response.get('model', 'unknown')
+            model_used = config.model.name
             result = {
                 'request_id': request_id,
                 'question': question,
