@@ -226,9 +226,17 @@ print("AI Response:")
 print(output)
 
 # Track metrics (optional)
+from ldai.tracker import TokenUsage
 tracker = getattr(config, 'tracker', None)
 if tracker:
-    tracker.track_tokens(response['usage']['inputTokens'] + response['usage']['outputTokens'])
+    usage = response.get('usage', {})
+    tracker.track_bedrock_converse_metrics(response)  # Auto-tracks success, duration, tokens
+    # Or manually:
+    # tracker.track_tokens(TokenUsage(
+    #     total=usage.get('inputTokens', 0) + usage.get('outputTokens', 0),
+    #     input=usage.get('inputTokens', 0),
+    #     output=usage.get('outputTokens', 0)
+    # ))
 ```
 
 **Expected Output:**
@@ -503,8 +511,16 @@ class MetricsTracker:
             # Track metrics via LaunchDarkly tracker
             tracker = getattr(config, 'tracker', None)
             if tracker:
-                tracker.track_duration(duration)
-                tracker.track_tokens(metrics["total_tokens"])
+                # Use built-in Bedrock tracking (handles success, duration, tokens)
+                tracker.track_bedrock_converse_metrics(response)
+                # Or manually (note: duration must be in milliseconds):
+                # from ldai.tracker import TokenUsage
+                # tracker.track_duration(int(duration * 1000))  # Convert seconds to ms
+                # tracker.track_tokens(TokenUsage(
+                #     total=metrics["total_tokens"],
+                #     input=metrics["input_tokens"],
+                #     output=metrics["output_tokens"]
+                # ))
 
         except Exception as e:
             end_time = time.time()
@@ -714,7 +730,8 @@ class ExperimentRunner:
             # Track metric via tracker
             tracker = getattr(config, 'tracker', None)
             if tracker:
-                tracker.track_duration(ttft / 1000)
+                tracker.track_duration(int(ttft))  # ttft is already in milliseconds
+                tracker.track_time_to_first_token(int(ttft))  # Also track TTFT specifically
 
             # Store result
             model_used = config.model.name
