@@ -5,3 +5,4 @@ __pycache__/
 .DS_Store
 .vscode/
 docs/aws-sso-setup-log.md
+python-server-sdk-ai/
