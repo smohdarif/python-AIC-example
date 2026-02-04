@@ -6,3 +6,4 @@ __pycache__/
 .vscode/
 docs/aws-sso-setup-log.md
 python-server-sdk-ai/
+python-server-sdk/
