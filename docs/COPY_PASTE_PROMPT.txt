@@ -1,0 +1,73 @@
+═══════════════════════════════════════════════════════════════
+COPY THIS ENTIRE PROMPT TO AI IMAGE EDITOR (Claude, etc.)
+═══════════════════════════════════════════════════════════════
+
+Please modify this organizational chart to show three career path options for Arif Shaikh. Keep ALL existing content unchanged. Add these three options as new visual elements:
+
+OPTION 1 - AMS CORPORATE LEAD (BLUE BORDER):
+Position: In the AMS Corporate column where Mike Duval's green "Interim AMS Corporate" box currently is
+Box Text:
+  "OPTION 1: AMS CORPORATE LEAD
+   Arif Shaikh
+   AMS Corporate Lead
+
+   • Takes over permanent AMS Corporate leadership
+   • Enables Mike Duval to focus 100% on Global Operations Lead"
+
+Visual: Blue border (#4A90E2), same styling as existing boxes
+Shows: Arif taking over from Mike's interim dual-role, allowing Mike to focus solely on Global Operations
+
+
+OPTION 2 - SEGMENT ARCHITECT AMS CORPORATE (GREEN BORDER):
+Position: Create new box at same level as "Mark Szczewski AMS Enterprise", positioned between or adjacent to existing AMS sections
+Box Text:
+  "OPTION 2: SEGMENT ARCHITECT
+   Arif Shaikh
+   Segment Architect, AMS Corporate
+
+   • Technical architecture leadership
+   • AMS Corporate region"
+
+Visual: Green border (#66BB6A, different shade from Mike's box), same size as existing boxes
+Shows: Peer-level architect position parallel to other regional leaders
+
+
+OPTION 3 - AI PRACTICE LEAD PS AMS ⭐ PRIMARY (PURPLE BORDER):
+Position: Create NEW column/vertical to the right of existing structure OR as 4th major branch under Randy Gullett
+Box Text:
+  "OPTION 3: AI PRACTICE LEAD ⭐ NEW VERTICAL
+   Arif Shaikh
+   AI Practice Lead - Professional Services AMS
+
+   • Leading NEW AI vertical
+   • Professional Services - AMS Region
+   • Strategic AI initiatives
+
+   [🤖 AI VERTICAL]"
+
+Visual: Purple/magenta border (#9B59B6), DOUBLE-LINE or THICKER border (5px), slightly LARGER box than Options 1&2, add "NEW" badge in corner
+Shows: New leadership vertical for AI practice - this is the PRIMARY/RECOMMENDED option
+Additional: Add dotted line connecting to the existing "TBH - AI Specialist" green box to show integration
+
+═══════════════════════════════════════════════════════════════
+FORMATTING REQUIREMENTS:
+═══════════════════════════════════════════════════════════════
+
+✅ Each option MUST be clearly labeled: "OPTION 1", "OPTION 2", "OPTION 3"
+✅ Use distinct colors: Blue, Green, Purple
+✅ Option 3 should be MOST PROMINENT (larger, bolder border)
+✅ Match existing font family (Arial/Helvetica), rounded corners
+✅ All existing boxes, names, and connections remain UNCHANGED
+✅ Text must be readable at current image resolution
+✅ Professional appearance consistent with current style
+
+EMPHASIS: Option 3 (Purple/AI Practice Lead) should stand out as the primary recommendation with "NEW VERTICAL" and "⭐" designation.
+
+VALUE PROPOSITION (add as small annotations near each option):
+- Option 1: "Frees Mike for Global Ops focus"
+- Option 2: "Technical architecture expertise"
+- Option 3: "Strategic AI leadership opportunity"
+
+OUTPUT: High-quality PNG image with all three options clearly visible.
+
+═══════════════════════════════════════════════════════════════

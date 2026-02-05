@@ -1,0 +1,39 @@
+COPY-PASTE READY PROMPT FOR AI IMAGE EDITOR
+==============================================
+
+Please modify this organizational chart image by adding three distinct career path options for Arif Shaikh. Keep all existing content unchanged.
+
+ADD THESE THREE OPTIONS CLEARLY:
+
+OPTION 1 - AMS CORPORATE SUPPORT (Blue border/highlight):
+- Position: Near Mike Dual's current location in AMS Corporate section
+- Title: "Arif Shaikh - Supporting AMS Corporate Lead"
+- Description: "Arif helps Mike Dual with AMS Corporate operations while Mike focuses on Global Operations Lead responsibilities"
+- Visual: Use blue border/highlight to distinguish this option
+- Connection: Show support/collaborative relationship with Mike Dual
+
+OPTION 2 - SEGMENT ARCHITECT AMS CORPORATE (Green border/highlight):
+- Position: Within or adjacent to AMS Corporate organizational structure
+- Title: "Arif Shaikh - Segment Architect, AMS Corporate"
+- Description: "Architect-level position for AMS Corporate region"
+- Visual: Use green border/highlight to distinguish this option
+- Connection: Show reporting to AMS Corporate leadership
+
+OPTION 3 - AI PRACTICE LEAD ⭐ PRIMARY OPTION (Purple border/highlight):
+- Position: Create NEW vertical stream/branch in the chart
+- Title: "Arif Shaikh - AI Practice Lead, Professional Services AMS"
+- Description: "Leading AI vertical for PS AMS Region (NEW business vertical)"
+- Visual: Use purple/magenta border/highlight, mark as "NEW" or "PRIMARY OPTION"
+- Connection: Show as distinct leadership vertical with connections to PS AMS
+- Emphasis: Make this option most prominent with larger size or bold border
+- Add AI icon/symbol if possible (🤖 or AI badge)
+
+VISUAL REQUIREMENTS:
+- Each option must be clearly labeled (Option 1, Option 2, Option 3)
+- Use distinct colors for each: Blue, Green, Purple
+- Maintain all existing elements in the chart
+- Keep professional appearance matching current style
+- Ensure text is readable
+- Option 3 should be most visually prominent
+
+OUTPUT: High-quality PNG with all three options clearly visible showing how Arif can add value to the organization.
