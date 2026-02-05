@@ -1,0 +1,194 @@
+═══════════════════════════════════════════════════════════════
+SINGLE IMAGE WITH ALL THREE CAREER PATH OPTIONS
+COPY THIS ENTIRE PROMPT TO AI IMAGE GENERATOR (Claude, etc.)
+═══════════════════════════════════════════════════════════════
+
+Create a professional comparison visualization showing THREE career path options for Arif Shaikh side-by-side.
+
+OVERALL TITLE (Top of image):
+"Career Path Options for Arif Shaikh - Value Proposition Comparison"
+
+LAYOUT: Three equal columns, side-by-side
+
+═══════════════════════════════════════════════════════════════
+OPTION 1 (LEFT COLUMN - BLUE THEME #4A90E2):
+═══════════════════════════════════════════════════════════════
+
+HEADER:
+┌─────────────────────────────────┐
+│ OPTION 1: AMS CORPORATE LEAD    │
+│ Role: Regional Leadership       │
+└─────────────────────────────────┘
+
+STRUCTURE:
+Mike Duval → Global Operations (focused)
+Arif Shaikh → AMS Corporate Lead
+    ├─ Dan Berkowitz
+    ├─ Kathy Morris
+    ├─ Steven Eberling
+    └─ TBH - AI Specialist
+
+VALUE ADD:
+✓ Takes over from Mike's interim role
+✓ Enables Mike to focus on Global Ops
+✓ Zero transition time
+✓ Team continuity maintained
+✓ Immediate leadership impact
+
+KEY METRIC:
+"Reduces Mike's dual-role burden by 50%"
+
+IMPACT: Operational Efficiency
+
+
+═══════════════════════════════════════════════════════════════
+OPTION 2 (CENTER COLUMN - GREEN THEME #66BB6A):
+═══════════════════════════════════════════════════════════════
+
+HEADER:
+┌─────────────────────────────────┐
+│ OPTION 2: SEGMENT ARCHITECT     │
+│ Role: Technical Leadership      │
+└─────────────────────────────────┘
+
+STRUCTURE:
+Randy Gullett → Global Services
+    ├─ Regional Leaders (peers):
+    │   ├─ David Sandilands (EMEA)
+    │   ├─ Sean Falzon (APJ)
+    │   ├─ Arif Shaikh (AMS Corp) ⭐
+    │   ├─ Mark Szczewski (AMS Ent)
+    │   └─ Vikram Narayan (AMS Strat)
+
+ARCHITECTURE DOMAINS:
+🔧 Cloud Architecture
+🤖 AI/ML Solutions
+🔗 Integration Architecture
+🔒 Security Architecture
+
+VALUE ADD:
+✓ Technical architecture expertise
+✓ Peer-level segment leadership
+✓ Deep AI/ML knowledge
+✓ Bridges sales & technical strategy
+✓ Regional technical credibility
+
+KEY METRIC:
+"Architect-level position with regional scope"
+
+IMPACT: Technical Excellence
+
+
+═══════════════════════════════════════════════════════════════
+OPTION 3 (RIGHT COLUMN - PURPLE THEME #9B59B6) ⭐ PRIMARY:
+═══════════════════════════════════════════════════════════════
+
+HEADER:
+┌─────────────────────────────────┐
+│ OPTION 3: AI PRACTICE LEAD ⭐   │
+│ Role: NEW Vertical Leadership   │
+│ 🤖 STRATEGIC GROWTH INITIATIVE  │
+└─────────────────────────────────┘
+
+STRUCTURE:
+Randy Gullett → Global Services
+    └─ [NEW] AI Practice - PS AMS
+        └─ Arif Shaikh (AI Practice Lead)
+            ├─ AI Architects (3-4)
+            ├─ AI Engineers (4-5)
+            └─ AI Specialists (2-3)
+
+AI SERVICE OFFERINGS:
+• AI Strategy & Advisory
+• GenAI/LLM Implementation
+• AI/ML Model Development
+• AI Operations (MLOps)
+• AI Governance & Ethics
+
+VALUE ADD:
+✓ Creates NEW revenue vertical
+✓ Deep AI expertise (scarce skill)
+✓ Addresses #1 customer demand
+✓ First-mover advantage
+✓ Strategic market positioning
+✓ High-margin consulting services
+
+KEY METRICS:
+"$10-15M revenue by Year 2"
+"40-50% margins"
+"Fastest-growing service area"
+
+IMPACT: Strategic Growth & Revenue
+
+
+═══════════════════════════════════════════════════════════════
+BOTTOM COMPARISON TABLE (Spans all three columns):
+═══════════════════════════════════════════════════════════════
+
+┌──────────────┬─────────────────┬─────────────────┬──────────────────┐
+│ CRITERIA     │ OPTION 1        │ OPTION 2        │ OPTION 3 ⭐      │
+├──────────────┼─────────────────┼─────────────────┼──────────────────┤
+│ Impact Type  │ Operational     │ Technical       │ Strategic        │
+│ Timeline     │ Immediate       │ 3-6 months      │ 6-12 months      │
+│ Team Size    │ 4-5 (existing)  │ Individual IC   │ 10-20 (build)    │
+│ Revenue      │ Maintains       │ Indirect        │ $10-15M new      │
+│ Market Need  │ Continuity      │ Arch expertise  │ HIGH (AI demand) │
+│ Risk Level   │ Low             │ Low-Medium      │ Medium           │
+│ Upside       │ Stability       │ Tech leadership │ Market leader    │
+└──────────────┴─────────────────┴─────────────────┴──────────────────┘
+
+RECOMMENDATION BOX (Bottom center):
+┌═══════════════════════════════════════════════════════════════┐
+║ RECOMMENDED: OPTION 3 - AI Practice Lead                      ║
+║                                                               ║
+║ Why? Highest strategic value + addresses critical market     ║
+║ need + creates new revenue vertical + leverages Arif's      ║
+║ unique AI expertise in fastest-growing service area          ║
+└═══════════════════════════════════════════════════════════════┘
+
+
+═══════════════════════════════════════════════════════════════
+VISUAL FORMATTING REQUIREMENTS:
+═══════════════════════════════════════════════════════════════
+
+COLORS:
+- Option 1: Blue theme (#4A90E2) - all boxes, borders, text highlights
+- Option 2: Green theme (#66BB6A) - all boxes, borders, text highlights
+- Option 3: Purple theme (#9B59B6) - all boxes, borders, text highlights
+- Option 3 should have THICKER borders (5px vs 3px) to show it's primary
+
+LAYOUT:
+- Three equal-width columns
+- Same height for each option section
+- Clear vertical dividing lines between options
+- Professional business diagram style
+- Clean, modern aesthetic
+
+TEXT:
+- Bold for headers and role titles
+- Regular for descriptions
+- Checkmarks (✓) for value-add bullets
+- Icons where appropriate (🤖 🔧 🔗 🔒 etc.)
+- Clear hierarchy: Title → Structure → Value Add → Metrics
+
+EMPHASIS:
+- Option 3 (right column) should be most prominent:
+  • Thicker border
+  • ⭐ star indicators
+  • "PRIMARY" or "RECOMMENDED" badges
+  • Slightly larger font for title
+  • "NEW VERTICAL" callout
+
+COMPARISON TABLE:
+- Clean table formatting
+- Highlight Option 3 row with subtle purple background
+- Easy to scan and compare
+
+SIZE:
+- High resolution (suitable for presentation)
+- Readable text when displayed on screen
+- Professional quality
+
+OUTPUT: Single professional image showing all three options for easy comparison, with Option 3 visually emphasized as the recommended choice.
+
+═══════════════════════════════════════════════════════════════

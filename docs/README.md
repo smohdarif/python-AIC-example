@@ -4,6 +4,16 @@
 
 ---
 
+## 📖 Coding Guidelines
+
+**⚠️ MANDATORY:** All code must follow patterns from the official Python AI SDK in this repo.
+
+See: [`/CODING_GUIDELINES.md`](../CODING_GUIDELINES.md)
+
+**Key Rule:** Always reference `/python-server-sdk-ai/` for code examples. Never use generic LaunchDarkly patterns.
+
+---
+
 ## 🚨 START HERE
 
 ### For Implementation (Code):

@@ -255,3 +255,44 @@ python app.py
 
 Or use Flask's built-in development server with debug mode (already enabled in `app.py`).
 
+---
+
+## 📖 Documentation & Coding Guidelines
+
+### For Contributors and AI Assistants
+
+**⚠️ MANDATORY:** All code must follow the official Python AI SDK patterns in this repository.
+
+- **Coding Guidelines:** [`CODING_GUIDELINES.md`](CODING_GUIDELINES.md)
+- **Documentation Index:** [`docs/README.md`](docs/README.md)
+- **Verified Code Examples:** [`docs/SDK_Code_Examples_CORRECTED.md`](docs/SDK_Code_Examples_CORRECTED.md)
+
+**Key Rule:** Always reference `/python-server-sdk-ai/` for API patterns. Never use generic LaunchDarkly documentation patterns.
+
+### Official SDK Reference
+
+All code in this repository is based on:
+```
+/python-server-sdk-ai/packages/sdk/server-ai/
+```
+
+See `CODING_GUIDELINES.md` for mandatory patterns and verification process.
+
+---
+
+## 📚 Additional Resources
+
+### Implementation Guides
+
+This repository includes comprehensive guides for implementing LaunchDarkly AI Configs:
+
+- **Business Case & ROI:** `docs/LaunchDarkly_Implementation_Executive_Summary.md`
+- **8-10 Week Plan:** `docs/LaunchDarkly_AI_Configs_Implementation_Plan.md`
+- **Code Examples:** `docs/SDK_Code_Examples_CORRECTED.md`
+- **Tutorials:** `docs/LaunchDarkly_AI_Configs_Tutorial.md`
+- **Production Learnings:** `docs/Veeam_LaunchDarkly_AI_Configs_Analysis.md`
+
+See `docs/README.md` for complete documentation navigation.
+
+---
+
