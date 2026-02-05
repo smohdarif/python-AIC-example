@@ -7,3 +7,8 @@ __pycache__/
 docs/aws-sso-setup-log.md
 python-server-sdk-ai/
 python-server-sdk/
+
+# Local prompts (not for sharing)
+docs/Quick_Prompt_For_Image_Edit.txt
+docs/FINAL_Image_Edit_Prompt.md
+docs/Image_Modification_Prompt_For_Org_Chart.md
