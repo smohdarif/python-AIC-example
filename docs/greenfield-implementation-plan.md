@@ -165,6 +165,100 @@ A phased approach to implementing LaunchDarkly AI Configs for your organization,
 
 ---
 
+## Discussion Topic: RBAC & Access Control for AI Configs
+
+### Overview
+
+LaunchDarkly provides Custom Roles for granular access control. This section outlines considerations for AI Config-specific permissions.
+
+### Questions to Discuss with LD Professional Services
+
+| # | Question | Why It Matters |
+|---|----------|----------------|
+| 1 | Do AI Configs have their own resource type in custom roles? | Determines granularity of permissions |
+| 2 | Can we restrict who can change AI model configurations vs prompts? | Separate concerns: cost impact vs content |
+| 3 | Is there audit logging for AI Config changes? | Compliance and troubleshooting |
+| 4 | Can we enforce approval workflows for production AI Config changes? | Change management |
+| 5 | How do permissions differ between environments (Dev/Staging/Prod)? | Developer velocity vs production safety |
+
+### LaunchDarkly Built-in Roles
+
+| Role | Typical Access |
+|------|----------------|
+| **Reader** | View only — see configs, metrics, dashboards |
+| **Writer** | View + Edit — modify configs in allowed environments |
+| **Admin** | Full access — all actions including user management |
+| **Owner** | Everything + billing and account settings |
+
+### Recommended Role Matrix for AI Configs
+
+| User Type | Dev Environment | Staging Environment | Production Environment |
+|-----------|-----------------|---------------------|------------------------|
+| **Developers** | Full access | Full access | Read only |
+| **AI/ML Team** | Full access | Full access | Full access |
+| **Product Managers** | Read + Edit prompts | Read + Edit prompts | Read only |
+| **QA Engineers** | Read only | Read only | Read only |
+| **DevOps/SRE** | Read only | Full access | Full access |
+| **Admins** | Full access | Full access | Full access |
+
+### Expected AI Config Permission Actions
+
+| Permission | Description | Who Needs It |
+|------------|-------------|--------------|
+| `viewAIConfig` | See AI Config details and variations | Everyone |
+| `editAIConfig` | Modify prompts, parameters | AI/ML, Product |
+| `changeModel` | Switch AI models (cost impact) | Senior engineers, AI leads |
+| `manageTargeting` | Change who gets which variation | Product managers |
+| `runExperiments` | Start/stop A/B tests | Data science, Product |
+| `viewMetrics` | See observability dashboards | Everyone |
+| `manageAlerts` | Configure alerting rules | DevOps, SRE |
+
+### Audit & Compliance Considerations
+
+| Requirement | LaunchDarkly Capability |
+|-------------|------------------------|
+| **Change history** | All config changes are logged with user, timestamp, and diff |
+| **Audit log export** | Available via API for SIEM integration |
+| **SSO/SAML** | Enterprise SSO integration available |
+| **MFA** | Supported for all users |
+| **IP allowlisting** | Available for additional security |
+
+### Governance Workflow (Recommended)
+
+```
+Developer creates AI Config change
+            │
+            ▼
+    ┌───────────────┐
+    │  Dev Environment  │  ← Developer can deploy directly
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │ Staging Environment │  ← Requires QA sign-off
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │  Approval Required  │  ← For production changes
+    └───────┬───────┘
+            │
+            ▼
+    ┌───────────────┐
+    │ Prod Environment │  ← Only admins/AI leads can deploy
+    └───────────────┘
+```
+
+### Action Items
+
+- [ ] Define user groups and their responsibilities
+- [ ] Map user groups to LaunchDarkly roles
+- [ ] Document approval workflow for production changes
+- [ ] Configure SSO integration (if applicable)
+- [ ] Set up audit log export (if required for compliance)
+
+---
+
 ## Appendix: EU Instance Specifics
 
 ### EU URLs
