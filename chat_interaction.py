@@ -17,6 +17,7 @@ import ldclient
 from ldclient import Context
 from ldclient.config import Config
 from ldai.client import LDAIClient, AICompletionConfigDefault
+from ldai.tracker import TokenUsage
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -169,16 +170,24 @@ class ChatInteraction:
             # Track metrics
             if self.tracker:
                 try:
-                    self.tracker.track_duration(duration)
+                    # Track success first
+                    self.tracker.track_success()
+                    # Duration must be in milliseconds
+                    self.tracker.track_duration(int(duration * 1000))
+                    # Track tokens using TokenUsage object
                     usage = response.get('usage', {})
                     if usage and isinstance(usage, dict):
                         input_tokens = usage.get('inputTokens', 0)
                         output_tokens = usage.get('outputTokens', 0)
                         total_tokens = input_tokens + output_tokens
                         if total_tokens > 0:
-                            self.tracker.track_tokens(total_tokens)
-                except Exception:
-                    pass
+                            self.tracker.track_tokens(TokenUsage(
+                                total=total_tokens,
+                                input=input_tokens,
+                                output=output_tokens
+                            ))
+                except Exception as e:
+                    print(f"Warning: Failed to track metrics: {e}")
             
             return {
                 "response": assistant_message,
@@ -187,7 +196,8 @@ class ChatInteraction:
             }
         except Exception as e:
             if self.tracker:
-                self.tracker.track_duration(time.time() - start_time)
+                self.tracker.track_error()
+                self.tracker.track_duration(int((time.time() - start_time) * 1000))
             raise Exception(f"Error invoking Bedrock: {e}")
     
     def _invoke_bedrock_for_config(self, config, tracker, user_message: str) -> Dict[str, Any]:
@@ -247,16 +257,21 @@ class ChatInteraction:
             # Track metrics
             if tracker:
                 try:
-                    tracker.track_duration(duration)
+                    tracker.track_success()
+                    tracker.track_duration(int(duration * 1000))  # Convert to milliseconds
                     usage = response.get('usage', {})
                     if usage and isinstance(usage, dict):
                         input_tokens = usage.get('inputTokens', 0)
                         output_tokens = usage.get('outputTokens', 0)
                         total_tokens = input_tokens + output_tokens
                         if total_tokens > 0:
-                            tracker.track_tokens(total_tokens)
-                except Exception:
-                    pass
+                            tracker.track_tokens(TokenUsage(
+                                total=total_tokens,
+                                input=input_tokens,
+                                output=output_tokens
+                            ))
+                except Exception as e:
+                    print(f"Warning: Failed to track metrics: {e}")
             
             return {
                 "response": response_text,
@@ -264,6 +279,8 @@ class ChatInteraction:
                 "usage": response.get('usage', {})
             }
         except Exception as e:
+            if tracker:
+                tracker.track_error()
             print(f"Error invoking Bedrock: {e}")
             return None
     
