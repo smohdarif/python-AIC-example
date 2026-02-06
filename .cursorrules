@@ -1,0 +1,151 @@
+# LaunchDarkly AI Configs - Coding Standards
+
+## IMPORTANT: Always Refer to Official SDK Source
+
+Before writing any LaunchDarkly-related code, ALWAYS check the official SDK source files in this repo:
+
+- **Python Server SDK AI**: `python-server-sdk-ai/packages/sdk/server-ai/src/ldai/`
+  - `client.py` - LDAIClient, completion_config(), config methods
+  - `tracker.py` - TokenUsage, track_duration(), track_tokens(), track_success()
+  - `models.py` - AICompletionConfig, AICompletionConfigDefault, LDMessage
+
+- **Python Server SDK**: `python-server-sdk/ldclient/`
+  - `context.py` - Context.builder() patterns
+  - `config.py` - Config class for SDK initialization
+
+**Do NOT guess method signatures or parameter types. Always verify against the SDK source.**
+
+---
+
+## Python Best Practices
+
+- Use type hints for all function parameters and return values
+- Use `Enum` classes for fixed value sets (e.g., `QueryComplexity.SIMPLE`)
+- Use `@classmethod` for stateless utility methods
+- Use `Tuple[...]` for explicit return types with multiple values
+- Use `Optional[T]` for parameters that can be None
+- Use `dataclass` for data containers
+- Follow PEP 8 naming conventions (snake_case for functions/variables, PascalCase for classes)
+
+## LaunchDarkly SDK Best Practices
+
+### Client Initialization
+- Initialize LaunchDarkly client ONCE at module level, not per request
+- Use `ldclient.set_config(Config(sdk_key))` then `ldclient.get()`
+- Create `LDAIClient(ld_client)` wrapper for AI operations
+
+```python
+# CORRECT - Module level initialization
+ldclient.set_config(Config(LD_SDK_KEY))
+ld_client = ldclient.get()
+aiclient = LDAIClient(ld_client)
+
+# WRONG - Per-request initialization
+def handle_request():
+    client = ldclient.get()  # Don't create per request
+```
+
+### AI Config Methods
+- Use `completion_config()` instead of deprecated `config()` method
+- Use `AICompletionConfigDefault` for fallback values
+- Access tracker via `config.tracker` attribute
+
+```python
+# CORRECT
+from ldai.client import LDAIClient, AICompletionConfigDefault
+
+fallback = AICompletionConfigDefault(enabled=False)
+config = aiclient.completion_config(config_key, context, fallback)
+tracker = config.tracker
+
+# WRONG (deprecated)
+config = aiclient.config(config_key, context, fallback)
+```
+
+### Metrics Tracking
+- Duration MUST be in milliseconds (int), not seconds
+- Use `TokenUsage` dataclass, not raw integers
+- Always call `track_success()` or `track_error()` for observability
+- Use helper methods like `track_duration_of()` when possible
+
+```python
+# CORRECT
+from ldai.tracker import TokenUsage
+
+tracker.track_success()
+tracker.track_duration(int(duration_seconds * 1000))  # Convert to ms
+tracker.track_tokens(TokenUsage(
+    total=input_tokens + output_tokens,
+    input=input_tokens,
+    output=output_tokens
+))
+
+# WRONG
+tracker.track_duration(duration_seconds)  # Wrong unit!
+tracker.track_tokens(total_tokens)  # Wrong type!
+```
+
+### Context Creation
+- Use `Context.builder()` pattern for creating contexts
+- Include relevant attributes for targeting (email, user_id, etc.)
+
+```python
+# CORRECT
+context = Context.builder(user_id) \
+    .set("email", email) \
+    .set("plan", "enterprise") \
+    .build()
+```
+
+### Error Handling
+- Always track errors with `tracker.track_error()` before re-raising
+- Log warnings for non-critical tracking failures
+- Use try/except around tracking code to not break main flow
+
+```python
+# CORRECT
+try:
+    response = call_bedrock(...)
+    tracker.track_success()
+except Exception as e:
+    tracker.track_error()
+    tracker.track_duration(int((time.time() - start) * 1000))
+    raise
+```
+
+## AWS Bedrock Best Practices
+
+- Use `boto3.Session(profile_name=...)` for profile-based auth
+- Handle SSO token expiration gracefully
+- Use `bedrock.converse()` API for chat interactions
+
+## Project-Specific Patterns
+
+### Query Routing (Use Case 2)
+When implementing fast/strong model routing:
+- Use `QueryRouter.classify_query()` to determine complexity
+- Make fast config optional (graceful degradation)
+- Return routing info in API response for observability
+
+### Environment Variables
+```bash
+LAUNCHDARKLY_SDK_KEY=sdk-xxx           # Required
+LAUNCHDARKLY_AI_CONFIG_KEY=xxx         # Required - strong model
+LAUNCHDARKLY_FAST_CONFIG_KEY=xxx       # Optional - fast model
+LAUNCHDARKLY_JUDGE_CONFIG_KEY=xxx      # Optional - AI judge
+AWS_REGION=us-east-1
+AWS_PROFILE=aiconfigdemo
+```
+
+## Events Sent to LaunchDarkly
+
+These events are tracked automatically when using tracker methods:
+
+| Event Key | Method | Value Type |
+|-----------|--------|------------|
+| `$ld:ai:duration:total` | `track_duration()` | int (milliseconds) |
+| `$ld:ai:tokens:total` | `track_tokens()` | int |
+| `$ld:ai:tokens:input` | `track_tokens()` | int |
+| `$ld:ai:tokens:output` | `track_tokens()` | int |
+| `$ld:ai:generation:success` | `track_success()` | 1 |
+| `$ld:ai:generation:error` | `track_error()` | 1 |
